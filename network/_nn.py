@@ -9,18 +9,29 @@ class Sequential:
         self.n_layers = len(layer_dimensions)
         self.n_matrices = self.n_layers - 1
         np.random.seed(seed=0)
+        self.matrix_dimensions = [(layer_dimensions[i + 1], layer_dimensions[i] + 1) for i in range(self.n_matrices)]
         self.weight_matrices = [
-            np.random.uniform(-1, 1, (layer_dimensions[i + 1], layer_dimensions[i] + 1))
+            np.random.uniform(-1, 1, self.matrix_dimensions[i])
             for i in range(self.n_matrices)
-        ]
+                                            ]
+
 
     def propagate_forward(self, input: np.ndarray) -> np.ndarray:
-        a_with_bias = np.append(1, input)
-        for i_matrix in range(self.n_matrices):
-            z = np.matmul(self.weight_matrices[i_matrix], a_with_bias)
+        self.layers = [np.append(1, input)]
+        for i_layer in range(1,self.n_layers ):
+            z = np.matmul(self.weight_matrices[i_layer-1], self.layers[i_layer-1])
             a = np.array(list(map(sigmoid, z)))
-            a_with_bias = np.append(1, a)
-        return a
+            if i_layer != self.n_layers - 1:
+                self.layers.append(np.append(1, a)) 
+            else:
+                 self.layers.append(a)                
+        return self.layers[-1]
+
+    def propagate_backward(self,y_pred: np.ndarray,y_train):
+        diff = y_pred - y_train 
+        for i_matrix in reversed(range(self.n_matrices)):
+            pass
+            
 
     def train(self, input: np.ndarray) -> np.ndarray:
         self.propagate_forward(input)

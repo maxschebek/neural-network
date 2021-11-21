@@ -10,11 +10,14 @@ def test_propagate_forward():
     np.random.seed(seed=0)
     weights_a = np.random.uniform(-1, 1, (5, 3))
     weights_b = np.random.uniform(-1, 1, (1, 6))
-    a_with_bias1 = np.append(1, input)
-    z2 = np.matmul(weights_a, a_with_bias1)
-    a2 = np.array(list(map(sigmoid, z2)))
-    a_with_bias2 = np.append(1, a2)
-    z3 = np.matmul(weights_b, a_with_bias2)
-    prediction = np.array(list(map(sigmoid, z3)))
+    layer0 = np.append(1, input)
+    z1 = np.matmul(weights_a, layer0)
+    a1 = np.array(list(map(sigmoid, z1)))
+    layer1 = np.append(1, a1)
+    z2 = np.matmul(weights_b, layer1)
+    prediction = np.array(list(map(sigmoid, z2)))
 
+    assert all(model.layers[1] == layer1)
+    assert all(model.layers[2] == prediction)
     assert prediction_model == prediction
+
