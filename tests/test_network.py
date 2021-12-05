@@ -62,4 +62,4 @@ def test_accumulation():
         atol=1e-5,
     )
 
-    assert np.allclose(costfunc(y, y_pred), 7.4070, atol=1e-5)
+    assert np.allclose(costfunc(y, y_pred,weights,4), 19.474, atol=1e-3)

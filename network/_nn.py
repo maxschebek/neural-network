@@ -59,11 +59,16 @@ def sigmoid_derivative(x: float) -> float:
     return sigmoid(x) * (1 - sigmoid(x))
 
 
-def costfunc(y, y_pred):
+def costfunc(y: np.ndarray, y_pred: np.ndarray, weights: List[np.ndarray], reg):
     n_samples = np.shape(y)[0]
     cost = 0
     for isp in range(n_samples):
         cost += -np.dot(y[isp, :], np.log(y_pred[isp, :])) - np.dot(
             (1 - y[isp, :]), np.log(1 - y_pred[isp, :])
         )
-    return 1 / n_samples * cost
+    cost *= 1/n_samples
+    weights_2 = [np.square(weight[:,1:]) for weight in weights]
+    weights_sum = [np.sum(weight_2) for  weight_2 in weights_2]
+    cost += reg / (2*n_samples) * sum(weights_sum)
+
+    return  cost
