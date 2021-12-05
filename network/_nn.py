@@ -3,16 +3,14 @@ from typing import List
 
 
 class Sequential:
-    def __init__(self, layer_dims: List[int]):
+    def __init__(self, layer_dims: List[int], weights: List[np.ndarray]):
         self.n_layers = len(layer_dims)
         self.n_weights = self.n_layers - 1
         np.random.seed(seed=0)
         self.weight_dims = [
             (layer_dims[i + 1], layer_dims[i] + 1) for i in range(self.n_weights)
         ]
-        self.weights = [
-            np.random.uniform(-1, 1, self.weight_dims[i]) for i in range(self.n_weights)
-        ]
+        self.weights = weights
         self.accumulators = [
             np.zeros(self.weight_dims[i]) for i in range(self.n_weights)
         ]

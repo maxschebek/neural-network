@@ -5,12 +5,11 @@ import numpy as np
 
 
 def test_propagate():
-    model = Sequential([2, 2, 4])
+    params = np.arange(1, 19) / 10
+    weights = [ np.reshape(params[0:6], (2, 3), "F"),np.reshape(params[6:18], (4, 3), "F") ]
+    model = Sequential([2, 2, 4],weights)
     X = np.cos([[1, 2]])
     y = np.array([[0.0, 0.0, 0.0, 1]])
-    params = np.arange(1, 19) / 10
-    model.weights[0][:, :] = np.reshape(params[0:6], (2, 3), "F")
-    model.weights[1][:, :] = np.reshape(params[6:18], (4, 3), "F")
     y_pred = model.propagate_forward(X)
     model.propagate_backward((y_pred - y)[0])
 
@@ -34,10 +33,9 @@ def test_propagate():
 
 
 def test_accumulation():
-    model = Sequential([2, 2, 4])
     params = np.arange(1, 19) / 10
-    model.weights[0][:, :] = np.reshape(params[0:6], (2, 3), "F")
-    model.weights[1][:, :] = np.reshape(params[6:18], (4, 3), "F")
+    weights = [ np.reshape(params[0:6], (2, 3), "F"),np.reshape(params[6:18], (4, 3), "F") ]
+    model = Sequential([2, 2, 4],weights)
     X = np.cos([[1, 2], [3, 4], [5, 6]])
     y = np.array([[0.0, 0.0, 0.0, 1], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0]])
     y_pred = np.zeros(np.shape(y))
