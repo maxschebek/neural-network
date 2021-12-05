@@ -1,51 +1,67 @@
-from numpy.core.fromnumeric import shape
-from network import Sequential, sigmoid
+# Neural network test with reference data from
+# https://www.coursera.org/learn/machine-learning/discussions/weeks/5/threads/uPd5FJqnEeWWpRIGHRsuuw
+from network import Sequential, costfunc
 import numpy as np
 
 
-def test_propagate_forward():
-    model = Sequential([2, 5, 1])
-    input = np.array([0.7, 0.5])
+def test_propagate():
+    model = Sequential([2, 2, 4])
+    X = np.cos([[1, 2]])
+    y = np.array([[0.0, 0.0, 0.0, 1]])
+    params = np.arange(1, 19) / 10
+    model.weights[0][:, :] = np.reshape(params[0:6], (2, 3), "F")
+    model.weights[1][:, :] = np.reshape(params[6:18], (4, 3), "F")
+    y_pred = model.propagate_forward(X)
+    model.propagate_backward((y_pred - y)[0])
 
-    np.random.seed(seed=0)
-    weights = [np.random.uniform(-1, 1, (5, 3))]
-    weights.append(np.random.uniform(-1, 1, (1, 6)))
-    layers = [np.append(np.ones(1), input)]
-    z1 = np.matmul(weights[0], layers[0])
-    a1 = np.array(list(map(sigmoid, z1)))
-    layers.append(np.append(1, a1))
-    z2 = np.matmul(weights[1], layers[1])
-    a2 = np.array(list(map(sigmoid, z2)))
-    layers.append(np.append(1, a2))
+    # Test forward propagation
+    assert np.allclose(model.layers[1], np.array([1.0, 0.51350, 0.54151]), atol=1e-5)
+    assert np.allclose(
+        model.layers[2], np.array([0.88866, 0.90743, 0.92330, 0.93665]), atol=1e-5
+    )
+    assert np.allclose(model.layers_b[0], np.zeros(2), atol=1e-5)
+    assert np.allclose(model.layers_b[1], np.array([0.24982, 0.24828]), atol=1e-5)
+    assert np.allclose(model.layers_b[2], np.zeros(4), atol=1e-5)
 
-    model.propagate_forward(input)
-    assert model.n_layers == 3
-    assert model.n_weights == 2
-    assert np.array_equal(model.layers[0], layers[0])
-    assert np.array_equal(model.layers[1], layers[1])
-    assert np.array_equal(model.layers[2], layers[2])
-    assert np.array_equal(model.weights[0], weights[0])
-    assert np.array_equal(model.weights[1], weights[1])
+    # Test backward propagation
+    assert np.allclose(
+        model.layer_errors[2],
+        np.array([0.888659, 0.907427, 0.923305, -0.063351]),
+        atol=1e-5,
+    )
+
+    assert np.allclose(model.layer_errors[1], np.array([0.79393, 1.05281]), atol=1e-5)
 
 
-def test_propagate_backward():
-    model = Sequential([2, 5, 1])
-    input = np.array([0.7, 0.5])
-    y_pred = model.propagate_forward(input)
-    y_train = np.array([0.4])
-    layer_errors = 3 * [None]
-    weight_errors = 2 * [None]
+def test_accumulation():
+    model = Sequential([2, 2, 4])
+    params = np.arange(1, 19) / 10
+    model.weights[0][:, :] = np.reshape(params[0:6], (2, 3), "F")
+    model.weights[1][:, :] = np.reshape(params[6:18], (4, 3), "F")
+    X = np.cos([[1, 2], [3, 4], [5, 6]])
+    y = np.array([[0.0, 0.0, 0.0, 1], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0]])
+    y_pred = np.zeros(np.shape(y))
+    for i in range(len(y)):
+        y_pred[i] = model.propagate_forward(X[i])
+        model.propagate_backward(y_pred[i] - y[i])
 
-    layer_errors[2] = y_pred - y_train
-    weight_errors[1] = np.outer(layer_errors[2], model.layers[1])
-    aux_vector = np.matmul(model.weights[1][:, 1:].T, layer_errors[2])
-    layer_errors[1] = np.multiply(aux_vector, model.layers_b[1])
-    weight_errors[0] = np.outer(layer_errors[1], model.layers[0])
+    assert np.allclose(
+        model.accumulators[1] / len(y),
+        np.array(
+            [
+                [0.88342, 0.45931, 0.47834],
+                [0.56876, 0.34462, 0.36892],
+                [0.58467, 0.25631, 0.25977],
+                [0.59814, 0.31189, 0.32233],
+            ]
+        ),
+        atol=1e-5,
+    )
 
-    model.propagate_backward(y_pred - y_train)
-    assert np.shape(model.weight_errors[0]) == np.shape(model.weights[0])
-    assert np.shape(model.weight_errors[1]) == np.shape(model.weights[1])
-    assert np.array_equal(layer_errors[2], model.layer_errors[2])
-    assert np.array_equal(layer_errors[1], model.layer_errors[1])
-    assert np.array_equal(weight_errors[1], model.weight_errors[1])
-    assert np.array_equal(weight_errors[0], model.weight_errors[0])
+    assert np.allclose(
+        model.accumulators[0] / len(y),
+        np.array([[0.766138, -0.027540, -0.024929], [0.979897, -0.035844, -0.053862]]),
+        atol=1e-5,
+    )
+
+    assert np.allclose(costfunc(y, y_pred), 7.4070, atol=1e-5)
