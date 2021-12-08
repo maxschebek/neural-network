@@ -14,6 +14,7 @@ class Sequential:
         self.accumulators = [
             np.zeros(self.weight_dims[i]) for i in range(self.n_weights)
         ]
+        self.gradients = [np.zeros(self.weight_dims[i]) for i in range(self.n_weights)]
         self.layers = [
             np.ones(layer_dims[i_lay] + 1) for i_lay in range(self.n_layers - 1)
         ]
@@ -47,6 +48,16 @@ class Sequential:
                 self.layer_errors[i_lay], self.layers[i_lay - 1]
             )
 
+    def make_gradients(self, reg, batch_size):
+        for i in range(self.n_weights):
+            self.gradients[i] = self.accumulators[i] / batch_size
+            self.gradients[i][:, 1:] += reg / batch_size * self.weights[i][:, 1:]
+
+    def zero_gradients(self):
+        for i in range(self.n_weights):
+            self.accumulators[i] = 0.0
+            self.gradients[i] = 0.0
+
     def train(self, input: np.ndarray) -> np.ndarray:
         self.propagate_forward(input)
 
@@ -59,16 +70,13 @@ def sigmoid_derivative(x: float) -> float:
     return sigmoid(x) * (1 - sigmoid(x))
 
 
-def costfunc(y: np.ndarray, y_pred: np.ndarray, weights: List[np.ndarray], reg):
-    n_samples = np.shape(y)[0]
-    cost = 0
-    for isp in range(n_samples):
-        cost += -np.dot(y[isp, :], np.log(y_pred[isp, :])) - np.dot(
-            (1 - y[isp, :]), np.log(1 - y_pred[isp, :])
-        )
-    cost *= 1/n_samples
-    weights_2 = [np.square(weight[:,1:]) for weight in weights]
-    weights_sum = [np.sum(weight_2) for  weight_2 in weights_2]
-    cost += reg / (2*n_samples) * sum(weights_sum)
+def costfunc(y: np.ndarray, y_pred: np.ndarray):
+    cost = -np.dot(y, np.log(y_pred)) - np.dot((1 - y), np.log(1 - y_pred))
 
-    return  cost
+    return cost
+
+
+def regularization_term(weights, reg):
+    weights_2 = [np.square(weight[:, 1:]) for weight in weights]
+    weights_sum = [np.sum(weight_2) for weight_2 in weights_2]
+    return reg / 2 * sum(weights_sum)
