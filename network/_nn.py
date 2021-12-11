@@ -58,8 +58,12 @@ class Sequential:
             self.accumulators[i] = 0.0
             self.gradients[i] = 0.0
 
-    def train(self, input: np.ndarray) -> np.ndarray:
-        self.propagate_forward(input)
+    def __call__(self, X: np.ndarray, y: np.ndarray):
+        y_pred = self.propagate_forward(X)
+        self.propagate_backward((y_pred - y))
+        return y_pred
+
+
 
 
 def sigmoid(x: float) -> float:
