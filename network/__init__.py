@@ -1,1 +1,1 @@
-from ._nn import Sequential, sigmoid
+from ._nn import Sequential, costfunc, regularization_term

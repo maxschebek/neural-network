@@ -1,6 +1,6 @@
 # Neural network with backpropagation
 
-This repo contains an implemenation of a neural network utilizing numpy. 
+This repo contains an implemenation of a neural network utilizing numpy. The implementation follows Andrew Ng's [machine learning course](https://www.coursera.org/learn/machine-learning) .
 
 
 ## Forward propagation
