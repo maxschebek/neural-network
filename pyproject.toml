@@ -5,11 +5,12 @@ description = "Simple neural network with backpropagation."
 authors = ["Maximilian Schebek"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.8,<3.10"
 micrograd = "^0.1.0"
 matplotlib = "^3.4.3"
 sklearn = "^0.0"
 scipy = "^1.7"
+tensorflow = "^2.6"
 
 [tool.poetry.dev-dependencies]
 black = "^21.10b0"
