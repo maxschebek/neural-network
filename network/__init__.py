@@ -1,1 +1,1 @@
-from ._nn import Sequential, costfunc, regularization_term
+from ._nn import Sequential, costfunc, regularization_term, output_class

@@ -1,7 +1,7 @@
 # Neural network test with reference data from
 # https://www.coursera.org/learn/machine-learning/discussions/weeks/5/threads/uPd5FJqnEeWWpRIGHRsuuw
 from numpy.core.defchararray import mod
-from network import Sequential, costfunc, regularization_term
+from network import Sequential, costfunc, regularization_term, output_class
 import numpy as np
 
 # Define test model
@@ -145,3 +145,9 @@ def test_call():
     assert np.allclose(cost, cost_reg, atol=1e-3)
     assert np.allclose(model.gradients[0], gradients_reg[0], atol=1e-3)
     assert np.allclose(model.gradients[1], gradients_reg[1], atol=1e-3)
+
+def test_output_class():
+    y = np.array([0.11,5.4,0.6])
+    y_out = output_class(y)
+
+    assert np.allclose(y_out, np.array([0,1.0,0]))

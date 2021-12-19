@@ -1,5 +1,6 @@
 import numpy as np
 from typing import List
+import copy
 
 
 class Sequential:
@@ -10,7 +11,7 @@ class Sequential:
         self.weight_dims = [
             (layer_dims[i + 1], layer_dims[i] + 1) for i in range(self.n_weights)
         ]
-        self.weights = weights
+        self.weights = copy.deepcopy(weights)
         self.accumulators = [
             np.zeros(self.weight_dims[i]) for i in range(self.n_weights)
         ]
@@ -64,19 +65,16 @@ class Sequential:
         return y_pred
 
 
-
-
-def sigmoid(x: float) -> float:
+def sigmoid(x: float):
     return 1 / (1 + np.exp(-x))
 
 
-def sigmoid_derivative(x: float) -> float:
+def sigmoid_derivative(x: float):
     return sigmoid(x) * (1 - sigmoid(x))
 
 
 def costfunc(y: np.ndarray, y_pred: np.ndarray):
     cost = -np.dot(y, np.log(y_pred)) - np.dot((1 - y), np.log(1 - y_pred))
-
     return cost
 
 
@@ -84,3 +82,10 @@ def regularization_term(weights, reg):
     weights_2 = [np.square(weight[:, 1:]) for weight in weights]
     weights_sum = [np.sum(weight_2) for weight_2 in weights_2]
     return reg / 2 * sum(weights_sum)
+
+
+def output_class(y: np.ndarray):
+    y_class = np.zeros(len(y))
+    y_class[np.where(y == np.max(y))[0]] = 1
+    return y_class
+
