@@ -56,8 +56,8 @@ class Sequential:
 
     def zero_gradients(self):
         for i in range(self.n_weights):
-            self.accumulators[i] = 0.0
-            self.gradients[i] = 0.0
+            self.accumulators[i][:] = 0.0
+            self.gradients[i][:] = 0.0
 
     def __call__(self, X: np.ndarray, y: np.ndarray):
         y_pred = self.propagate_forward(X)

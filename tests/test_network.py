@@ -1,5 +1,9 @@
 # Neural network test with reference data from
 # https://www.coursera.org/learn/machine-learning/discussions/weeks/5/threads/uPd5FJqnEeWWpRIGHRsuuw
+import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
 from numpy.core.defchararray import mod
 from network import Sequential, costfunc, regularization_term, output_class
 import numpy as np
